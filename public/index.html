@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cap Ferret - Planning</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f4f8; color: #1a2a3a; min-height: 100vh; }
+    header { background: linear-gradient(135deg, #1b6ca8 0%, #2d9cdb 100%); color: white; padding: 1.5rem 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+    header h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.5px; }
+    header h1 span { opacity: 0.8; font-weight: 400; }
+    .couple-selector { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .couple-btn { padding: 0.5rem 1rem; border: 2px solid rgba(255,255,255,0.5); border-radius: 2rem; background: transparent; color: white; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; font-weight: 500; }
+    .couple-btn:hover { background: rgba(255,255,255,0.15); }
+    .couple-btn.active { background: white; color: #1b6ca8; border-color: white; }
+    .nav-bar { display: flex; align-items: center; justify-content: center; gap: 1rem; padding: 1rem 2rem; background: white; border-bottom: 1px solid #e2e8f0; }
+    .nav-bar button { background: none; border: 1px solid #cbd5e1; border-radius: 0.5rem; padding: 0.4rem 0.8rem; cursor: pointer; font-size: 0.9rem; color: #475569; transition: all 0.2s; }
+    .nav-bar button:hover { background: #f1f5f9; border-color: #94a3b8; }
+    .nav-bar .month-label { font-size: 1.1rem; font-weight: 600; min-width: 200px; text-align: center; text-transform: capitalize; }
+    .nav-bar .today-btn { background: #2d9cdb; color: white; border-color: #2d9cdb; font-weight: 500; }
+    .nav-bar .today-btn:hover { background: #1b6ca8; }
+    .legend { display: flex; gap: 1.5rem; justify-content: center; padding: 0.75rem 2rem; background: white; border-bottom: 1px solid #e2e8f0; flex-wrap: wrap; }
+    .legend-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; color: #64748b; }
+    .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .calendar { max-width: 1100px; margin: 1.5rem auto; padding: 0 1rem; }
+    .weekday-header { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 4px; }
+    .weekday-header div { text-align: center; font-size: 0.75rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; padding: 0.5rem 0; }
+    .days-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+    .day-cell { background: white; border-radius: 0.5rem; min-height: 100px; padding: 0.4rem; cursor: pointer; border: 2px solid transparent; transition: all 0.15s; position: relative; }
+    .day-cell:hover { border-color: #2d9cdb; box-shadow: 0 2px 8px rgba(45,156,219,0.15); }
+    .day-cell.empty { background: transparent; cursor: default; border: none; }
+    .day-cell.empty:hover { border-color: transparent; box-shadow: none; }
+    .day-cell.today { border-color: #2d9cdb; background: #f0f9ff; }
+    .day-cell.past { opacity: 0.5; }
+    .day-number { font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.3rem; }
+    .day-cell.today .day-number { background: #2d9cdb; color: white; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .booking-chip { font-size: 0.65rem; padding: 2px 5px; border-radius: 3px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+    .status-interested { background: #fef3c7; color: #92400e; }
+    .status-confirmed { background: #d1fae5; color: #065f46; }
+    .status-not-coming { background: #fee2e2; color: #991b1b; }
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+    .modal-overlay.open { display: flex; }
+    .modal { background: white; border-radius: 1rem; padding: 1.5rem; width: 90%; max-width: 420px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); animation: slideUp 0.2s ease; }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .modal h2 { font-size: 1.1rem; margin-bottom: 1rem; color: #1a2a3a; }
+    .modal h2 span { color: #2d9cdb; }
+    .status-options { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; }
+    .status-option { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border: 2px solid #e2e8f0; border-radius: 0.5rem; cursor: pointer; transition: all 0.15s; font-size: 0.9rem; }
+    .status-option:hover { border-color: #cbd5e1; background: #f8fafc; }
+    .status-option.selected { border-color: #2d9cdb; background: #f0f9ff; }
+    .status-option .dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+    .modal textarea { width: 100%; border: 2px solid #e2e8f0; border-radius: 0.5rem; padding: 0.75rem; font-size: 0.9rem; font-family: inherit; resize: vertical; min-height: 60px; margin-bottom: 1rem; transition: border-color 0.15s; }
+    .modal textarea:focus { outline: none; border-color: #2d9cdb; }
+    .modal-actions { display: flex; gap: 0.5rem; justify-content: flex-end; }
+    .modal-actions button { padding: 0.5rem 1.2rem; border-radius: 0.5rem; font-size: 0.9rem; cursor: pointer; font-weight: 500; border: none; transition: all 0.15s; }
+    .btn-cancel { background: #f1f5f9; color: #475569; }
+    .btn-cancel:hover { background: #e2e8f0; }
+    .btn-delete { background: #fee2e2; color: #dc2626; }
+    .btn-delete:hover { background: #fecaca; }
+    .btn-save { background: #2d9cdb; color: white; }
+    .btn-save:hover { background: #1b6ca8; }
+    .note-label { font-size: 0.8rem; color: #64748b; margin-bottom: 0.3rem; font-weight: 500; }
+    .toast { position: fixed; top: 1rem; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-size: 0.9rem; z-index: 200; animation: toastIn 0.3s ease, toastOut 0.3s ease 2s forwards; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+    @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(-10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+    @keyframes toastOut { from { opacity: 1; } to { opacity: 0; } }
+    @media (max-width: 700px) { .day-cell { min-height: 70px; padding: 0.25rem; } .day-number { font-size: 0.7rem; } .booking-chip { font-size: 0.55rem; padding: 1px 3px; } header { padding: 1rem; } header h1 { font-size: 1.2rem; } .calendar { margin: 0.75rem auto; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Cap Ferret <span>Planning</span></h1>
+    <div class="couple-selector" id="coupleSelector"></div>
+  </header>
+  <div class="nav-bar">
+    <button onclick="changeMonth(-1)">&larr; Mois</button>
+    <button class="today-btn" onclick="goToday()">Aujourd'hui</button>
+    <span class="month-label" id="monthLabel"></span>
+    <button onclick="changeMonth(1)">Mois &rarr;</button>
+  </div>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#fbbf24"></div> Interest\u00e9</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#34d399"></div> Confirm\u00e9</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#f87171"></div> Ne vient pas</div>
+  </div>
+  <div class="calendar">
+    <div class="weekday-header">
+      <div>Lun</div><div>Mar</div><div>Mer</div><div>Jeu</div><div>Ven</div><div>Sam</div><div>Dim</div>
+    </div>
+    <div class="days-grid" id="daysGrid"></div>
+  </div>
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <h2 id="modalTitle"></h2>
+      <div class="status-options" id="statusOptions">
+        <div class="status-option" data-status="interested" onclick="selectStatus('interested')">
+          <div class="dot" style="background:#fbbf24"></div> Interest\u00e9
+        </div>
+        <div class="status-option" data-status="confirmed" onclick="selectStatus('confirmed')">
+          <div class="dot" style="background:#34d399"></div> Confirm\u00e9
+        </div>
+        <div class="status-option" data-status="not-coming" onclick="selectStatus('not-coming')">
+          <div class="dot" style="background:#f87171"></div> Ne vient pas
+        </div>
+      </div>
+      <div class="note-label">Note (optionnel)</div>
+      <textarea id="noteInput" placeholder="Ex: on arrive vendredi soir..."></textarea>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal()">Annuler</button>
+        <button class="btn-delete" id="deleteBtn" onclick="deleteBooking()">Supprimer</button>
+        <button class="btn-save" onclick="saveBooking()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    const COUPLES = ['Thomas', 'Nash', 'JZoMeu'];
+    const STATUS_LABELS = { interested: 'Interest\u00e9', confirmed: 'Confirm\u00e9', 'not-coming': 'Ne vient pas' };
+    let currentCouple = localStorage.getItem('couple') || '';
+    let currentYear, currentMonth, bookings = [], modalDate = null, selectedStatus = null;
+    function init() { const t = new Date(); currentYear = t.getFullYear(); currentMonth = t.getMonth(); renderCoupleSelector(); renderCalendar(); }
+    function renderCoupleSelector() { document.getElementById('coupleSelector').innerHTML = COUPLES.map(c => '<button class="couple-btn ' + (c === currentCouple ? 'active' : '') + '" onclick="selectCouple(\'' + c + '\')">' + c + '</button>').join(''); }
+    function selectCouple(n) { currentCouple = n; localStorage.setItem('couple', n); renderCoupleSelector(); }
+    function changeMonth(d) { currentMonth += d; if (currentMonth > 11) { currentMonth = 0; currentYear++; } if (currentMonth < 0) { currentMonth = 11; currentYear--; } renderCalendar(); }
+    function goToday() { const t = new Date(); currentYear = t.getFullYear(); currentMonth = t.getMonth(); renderCalendar(); }
+    function pad(n) { return String(n).padStart(2, '0'); }
+    function fmt(y, m, d) { return y + '-' + pad(m+1) + '-' + pad(d); }
+    async function renderCalendar() {
+      document.getElementById('monthLabel').textContent = new Date(currentYear, currentMonth).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+      const first = new Date(currentYear, currentMonth, 1), last = new Date(currentYear, currentMonth + 1, 0);
+      let dow = first.getDay(); if (dow === 0) dow = 7;
+      const from = fmt(currentYear, currentMonth, 1), to = fmt(currentYear, currentMonth, last.getDate());
+      try { bookings = await (await fetch('/api/bookings?from=' + from + '&to=' + to)).json(); } catch { bookings = []; }
+      const today = new Date(), todayStr = fmt(today.getFullYear(), today.getMonth(), today.getDate());
+      let html = '';
+      for (let i = 1; i < dow; i++) html += '<div class="day-cell empty"></div>';
+      for (let d = 1; d <= last.getDate(); d++) {
+        const ds = fmt(currentYear, currentMonth, d), db = bookings.filter(b => b.date === ds);
+        const isToday = ds === todayStr, isPast = new Date(ds) < new Date(todayStr);
+        html += '<div class="day-cell ' + (isToday ? 'today' : '') + ' ' + (isPast ? 'past' : '') + '" onclick="openModal(\'' + ds + '\')">';
+        html += '<div class="day-number">' + d + '</div>';
+        for (const b of db) { html += '<div class="booking-chip status-' + b.status + '" title="' + b.couple + ': ' + STATUS_LABELS[b.status] + (b.note ? '\n' + b.note : '') + '">' + b.couple + (b.note ? ' *' : '') + '</div>'; }
+        html += '</div>';
+      }
+      document.getElementById('daysGrid').innerHTML = html;
+    }
+    function openModal(ds) {
+      if (!currentCouple) { showToast('Choisis ton nom en haut !'); return; }
+      modalDate = ds; selectedStatus = null;
+      const ex = bookings.find(b => b.date === ds && b.couple === currentCouple);
+      const d = new Date(ds + 'T12:00:00');
+      document.getElementById('modalTitle').innerHTML = '<span>' + currentCouple + '</span> \u2014 ' + d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+      document.querySelectorAll('.status-option').forEach(el => el.classList.remove('selected'));
+      document.getElementById('noteInput').value = '';
+      document.getElementById('deleteBtn').style.display = 'none';
+      if (ex) { selectStatus(ex.status); document.getElementById('noteInput').value = ex.note || ''; document.getElementById('deleteBtn').style.display = 'inline-block'; }
+      document.getElementById('modalOverlay').classList.add('open');
+    }
+    function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); modalDate = null; }
+    function selectStatus(s) { selectedStatus = s; document.querySelectorAll('.status-option').forEach(el => el.classList.toggle('selected', el.dataset.status === s)); }
+    async function saveBooking() {
+      if (!selectedStatus) { showToast('Choisis un statut !'); return; }
+      await fetch('/api/bookings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ couple: currentCouple, date: modalDate, status: selectedStatus, note: document.getElementById('noteInput').value.trim() }) });
+      closeModal(); renderCalendar();
+    }
+    async function deleteBooking() {
+      await fetch('/api/bookings', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ couple: currentCouple, date: modalDate }) });
+      closeModal(); renderCalendar();
+    }
+    document.getElementById('modalOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+    function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2500); }
+    init();
+  </script>
+</body>
+</html>
