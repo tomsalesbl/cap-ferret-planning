@@ -4,100 +4,443 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cap Ferret - Planning</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f4f8; color: #1a2a3a; min-height: 100vh; }
-    header { background: linear-gradient(135deg, #1b6ca8 0%, #2d9cdb 100%); color: white; padding: 1.5rem 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
-    header h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.5px; }
-    header h1 span { opacity: 0.8; font-weight: 400; }
-    .couple-selector { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-    .couple-btn { padding: 0.5rem 1rem; border: 2px solid rgba(255,255,255,0.5); border-radius: 2rem; background: transparent; color: white; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; font-weight: 500; }
-    .couple-btn:hover { background: rgba(255,255,255,0.15); }
-    .couple-btn.active { background: white; color: #1b6ca8; border-color: white; }
-    .nav-bar { display: flex; align-items: center; justify-content: center; gap: 1rem; padding: 1rem 2rem; background: white; border-bottom: 1px solid #e2e8f0; }
-    .nav-bar button { background: none; border: 1px solid #cbd5e1; border-radius: 0.5rem; padding: 0.4rem 0.8rem; cursor: pointer; font-size: 0.9rem; color: #475569; transition: all 0.2s; }
-    .nav-bar button:hover { background: #f1f5f9; border-color: #94a3b8; }
-    .nav-bar .month-label { font-size: 1.1rem; font-weight: 600; min-width: 200px; text-align: center; text-transform: capitalize; }
-    .nav-bar .today-btn { background: #2d9cdb; color: white; border-color: #2d9cdb; font-weight: 500; }
-    .nav-bar .today-btn:hover { background: #1b6ca8; }
-    .legend { display: flex; gap: 1.5rem; justify-content: center; padding: 0.75rem 2rem; background: white; border-bottom: 1px solid #e2e8f0; flex-wrap: wrap; }
-    .legend-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; color: #64748b; }
-    .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
-    .calendar { max-width: 1100px; margin: 1.5rem auto; padding: 0 1rem; }
-    .weekday-header { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 4px; }
-    .weekday-header div { text-align: center; font-size: 0.75rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; padding: 0.5rem 0; }
-    .days-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
-    .day-cell { background: white; border-radius: 0.5rem; min-height: 100px; padding: 0.4rem; cursor: pointer; border: 2px solid transparent; transition: all 0.15s; position: relative; }
-    .day-cell:hover { border-color: #2d9cdb; box-shadow: 0 2px 8px rgba(45,156,219,0.15); }
-    .day-cell.empty { background: transparent; cursor: default; border: none; }
+    html, body { max-width: 100vw; overflow-x: hidden; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f5f0eb;
+      color: #2c3e50;
+      min-height: 100vh;
+    }
+
+    .hero {
+      position: relative;
+      height: 340px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .hero img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(27,59,82,0.45) 0%, rgba(27,59,82,0.7) 100%);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      color: white;
+    }
+
+    .hero-content h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 3rem;
+      font-weight: 700;
+      letter-spacing: -1px;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+    }
+
+    .hero-content p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      font-weight: 400;
+      letter-spacing: 0.5px;
+    }
+
+    .couple-selector {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-top: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    .couple-btn {
+      padding: 0.5rem 1.2rem;
+      border: 2px solid rgba(255,255,255,0.5);
+      border-radius: 2rem;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(8px);
+      color: white;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 500;
+      font-family: inherit;
+    }
+
+    .couple-btn:hover { background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.7); }
+    .couple-btn.active { background: white; color: #1b3b52; border-color: white; }
+
+    .content-wrapper {
+      max-width: 1000px;
+      margin: -2rem auto 2rem;
+      padding: 0 1rem;
+      position: relative;
+      z-index: 3;
+    }
+
+    .card {
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    .nav-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      padding: 1.25rem 2rem;
+      border-bottom: 1px solid #eee;
+    }
+
+    .nav-bar button {
+      background: none;
+      border: 1px solid #ddd;
+      border-radius: 0.5rem;
+      padding: 0.4rem 0.8rem;
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: #64748b;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .nav-bar button:hover { background: #f8f6f3; border-color: #bbb; }
+
+    .nav-bar .month-label {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      font-weight: 600;
+      min-width: 200px;
+      text-align: center;
+      text-transform: capitalize;
+      color: #1b3b52;
+    }
+
+    .nav-bar .today-btn {
+      background: #1b6ca8;
+      color: white;
+      border-color: #1b6ca8;
+      font-weight: 500;
+    }
+
+    .nav-bar .today-btn:hover { background: #155a8a; }
+
+    .legend {
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      padding: 0.75rem 2rem;
+      border-bottom: 1px solid #eee;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+      color: #8899a6;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .calendar {
+      padding: 1rem 1.25rem 1.5rem;
+    }
+
+    .weekday-header {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      margin-bottom: 4px;
+    }
+
+    .weekday-header div {
+      text-align: center;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #a0aec0;
+      text-transform: uppercase;
+      padding: 0.5rem 0;
+      letter-spacing: 0.5px;
+    }
+
+    .days-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+
+    .day-cell {
+      background: #fafaf8;
+      border-radius: 0.6rem;
+      min-height: 90px;
+      padding: 0.4rem;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.15s;
+      position: relative;
+    }
+
+    .day-cell:hover { border-color: #1b6ca8; box-shadow: 0 2px 8px rgba(27,108,168,0.12); }
+    .day-cell.empty { background: transparent; cursor: default; border: none; box-shadow: none; }
     .day-cell.empty:hover { border-color: transparent; box-shadow: none; }
-    .day-cell.today { border-color: #2d9cdb; background: #f0f9ff; }
-    .day-cell.past { opacity: 0.5; }
-    .day-number { font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.3rem; }
-    .day-cell.today .day-number { background: #2d9cdb; color: white; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-    .booking-chip { font-size: 0.65rem; padding: 2px 5px; border-radius: 3px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+    .day-cell.today { border-color: #1b6ca8; background: #eef6fc; }
+    .day-cell.past { opacity: 0.45; }
+
+    .day-number {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #4a5568;
+      margin-bottom: 0.3rem;
+    }
+
+    .day-cell.today .day-number {
+      background: #1b6ca8;
+      color: white;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .booking-chip {
+      font-size: 0.65rem;
+      padding: 2px 5px;
+      border-radius: 4px;
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-weight: 500;
+    }
+
     .status-interested { background: #fef3c7; color: #92400e; }
     .status-confirmed { background: #d1fae5; color: #065f46; }
     .status-not-coming { background: #fee2e2; color: #991b1b; }
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+    }
+
     .modal-overlay.open { display: flex; }
-    .modal { background: white; border-radius: 1rem; padding: 1.5rem; width: 90%; max-width: 420px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); animation: slideUp 0.2s ease; }
-    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    .modal h2 { font-size: 1.1rem; margin-bottom: 1rem; color: #1a2a3a; }
-    .modal h2 span { color: #2d9cdb; }
-    .status-options { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; }
-    .status-option { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border: 2px solid #e2e8f0; border-radius: 0.5rem; cursor: pointer; transition: all 0.15s; font-size: 0.9rem; }
-    .status-option:hover { border-color: #cbd5e1; background: #f8fafc; }
-    .status-option.selected { border-color: #2d9cdb; background: #f0f9ff; }
-    .status-option .dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
-    .modal textarea { width: 100%; border: 2px solid #e2e8f0; border-radius: 0.5rem; padding: 0.75rem; font-size: 0.9rem; font-family: inherit; resize: vertical; min-height: 60px; margin-bottom: 1rem; transition: border-color 0.15s; }
-    .modal textarea:focus { outline: none; border-color: #2d9cdb; }
-    .modal-actions { display: flex; gap: 0.5rem; justify-content: flex-end; }
-    .modal-actions button { padding: 0.5rem 1.2rem; border-radius: 0.5rem; font-size: 0.9rem; cursor: pointer; font-weight: 500; border: none; transition: all 0.15s; }
-    .btn-cancel { background: #f1f5f9; color: #475569; }
-    .btn-cancel:hover { background: #e2e8f0; }
+
+    .modal {
+      background: white;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      width: 90%;
+      max-width: 420px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      animation: slideUp 0.2s ease;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      color: #1b3b52;
+    }
+
+    .modal h2 span { color: #1b6ca8; }
+
+    .status-options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .status-option {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      border: 2px solid #e8e5e0;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-size: 0.9rem;
+    }
+
+    .status-option:hover { border-color: #ccc; background: #faf9f7; }
+    .status-option.selected { border-color: #1b6ca8; background: #eef6fc; }
+
+    .status-option .dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .modal textarea {
+      width: 100%;
+      border: 2px solid #e8e5e0;
+      border-radius: 0.5rem;
+      padding: 0.75rem;
+      font-size: 0.9rem;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 60px;
+      margin-bottom: 1rem;
+      transition: border-color 0.15s;
+    }
+
+    .modal textarea:focus { outline: none; border-color: #1b6ca8; }
+
+    .modal-actions {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: flex-end;
+    }
+
+    .modal-actions button {
+      padding: 0.5rem 1.2rem;
+      border-radius: 0.5rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      font-weight: 500;
+      border: none;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+
+    .btn-cancel { background: #f1eeea; color: #64748b; }
+    .btn-cancel:hover { background: #e8e5e0; }
     .btn-delete { background: #fee2e2; color: #dc2626; }
     .btn-delete:hover { background: #fecaca; }
-    .btn-save { background: #2d9cdb; color: white; }
-    .btn-save:hover { background: #1b6ca8; }
-    .note-label { font-size: 0.8rem; color: #64748b; margin-bottom: 0.3rem; font-weight: 500; }
-    .toast { position: fixed; top: 1rem; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-size: 0.9rem; z-index: 200; animation: toastIn 0.3s ease, toastOut 0.3s ease 2s forwards; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+    .btn-save { background: #1b6ca8; color: white; }
+    .btn-save:hover { background: #155a8a; }
+
+    .note-label {
+      font-size: 0.8rem;
+      color: #8899a6;
+      margin-bottom: 0.3rem;
+      font-weight: 500;
+    }
+
+    .toast {
+      position: fixed;
+      top: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1b3b52;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-size: 0.9rem;
+      z-index: 200;
+      animation: toastIn 0.3s ease, toastOut 0.3s ease 2s forwards;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
     @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(-10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
     @keyframes toastOut { from { opacity: 1; } to { opacity: 0; } }
-    @media (max-width: 700px) { .day-cell { min-height: 70px; padding: 0.25rem; } .day-number { font-size: 0.7rem; } .booking-chip { font-size: 0.55rem; padding: 1px 3px; } header { padding: 1rem; } header h1 { font-size: 1.2rem; } .calendar { margin: 0.75rem auto; } }
+
+    @media (max-width: 700px) {
+      .hero { height: 240px; }
+      .hero-content h1 { font-size: 2rem; }
+      .hero-content p { font-size: 0.9rem; }
+      .couple-btn { padding: 0.4rem 0.8rem; font-size: 0.8rem; }
+      .content-wrapper { margin-top: -1.5rem; padding: 0 0.5rem; }
+      .day-cell { min-height: 55px; padding: 0.2rem; }
+      .day-number { font-size: 0.7rem; }
+      .booking-chip { font-size: 0.55rem; padding: 1px 3px; }
+      .calendar { padding: 0.5rem 0.5rem 1rem; }
+      .days-grid { gap: 2px; }
+      .weekday-header { gap: 2px; }
+      .weekday-header div { font-size: 0.6rem; }
+      .nav-bar { padding: 0.75rem 0.5rem; gap: 0.4rem; flex-wrap: wrap; }
+      .nav-bar button { padding: 0.35rem 0.6rem; font-size: 0.8rem; }
+      .nav-bar .month-label { font-size: 1.1rem; min-width: 140px; }
+      .legend { gap: 0.75rem; padding: 0.5rem 0.75rem; }
+      .legend-item { font-size: 0.7rem; }
+    }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Cap Ferret <span>Planning</span></h1>
-    <div class="couple-selector" id="coupleSelector"></div>
-  </header>
-  <div class="nav-bar">
-    <button onclick="changeMonth(-1)">&larr; Mois</button>
-    <button class="today-btn" onclick="goToday()">Aujourd'hui</button>
-    <span class="month-label" id="monthLabel"></span>
-    <button onclick="changeMonth(1)">Mois &rarr;</button>
-  </div>
-  <div class="legend">
-    <div class="legend-item"><div class="legend-dot" style="background:#fbbf24"></div> Interest\u00e9</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#34d399"></div> Confirm\u00e9</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#f87171"></div> Ne vient pas</div>
-  </div>
-  <div class="calendar">
-    <div class="weekday-header">
-      <div>Lun</div><div>Mar</div><div>Mer</div><div>Jeu</div><div>Ven</div><div>Sam</div><div>Dim</div>
+  <div class="hero">
+    <img src="https://images.unsplash.com/photo-1575517111478-7f6afd0973db?w=1600&q=80" alt="Maison sous les pins">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <h1>Cap Ferret</h1>
+      <p>Planifiez vos séjours en famille</p>
+      <div class="couple-selector" id="coupleSelector"></div>
     </div>
-    <div class="days-grid" id="daysGrid"></div>
   </div>
+
+  <div class="content-wrapper">
+    <div class="card">
+      <div class="nav-bar">
+        <button onclick="changeMonth(-1)">&larr; Mois</button>
+        <button class="today-btn" onclick="goToday()">Aujourd'hui</button>
+        <span class="month-label" id="monthLabel"></span>
+        <button onclick="changeMonth(1)">Mois &rarr;</button>
+      </div>
+
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#fbbf24"></div> Intéressé</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#34d399"></div> Confirmé</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f87171"></div> Ne vient pas</div>
+      </div>
+
+      <div class="calendar">
+        <div class="weekday-header">
+          <div>Lun</div><div>Mar</div><div>Mer</div><div>Jeu</div><div>Ven</div><div>Sam</div><div>Dim</div>
+        </div>
+        <div class="days-grid" id="daysGrid"></div>
+      </div>
+    </div>
+  </div>
+
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal">
       <h2 id="modalTitle"></h2>
       <div class="status-options" id="statusOptions">
         <div class="status-option" data-status="interested" onclick="selectStatus('interested')">
-          <div class="dot" style="background:#fbbf24"></div> Interest\u00e9
+          <div class="dot" style="background:#fbbf24"></div> Intéressé
         </div>
         <div class="status-option" data-status="confirmed" onclick="selectStatus('confirmed')">
-          <div class="dot" style="background:#34d399"></div> Confirm\u00e9
+          <div class="dot" style="background:#34d399"></div> Confirmé
         </div>
         <div class="status-option" data-status="not-coming" onclick="selectStatus('not-coming')">
           <div class="dot" style="background:#f87171"></div> Ne vient pas
@@ -112,62 +455,191 @@
       </div>
     </div>
   </div>
+
   <script>
     const COUPLES = ['Thomas', 'Nash', 'JZoMeu'];
-    const STATUS_LABELS = { interested: 'Interest\u00e9', confirmed: 'Confirm\u00e9', 'not-coming': 'Ne vient pas' };
+    const COLORS = { interested: '#fbbf24', confirmed: '#34d399', 'not-coming': '#f87171' };
+    const STATUS_LABELS = { interested: 'Intéressé', confirmed: 'Confirmé', 'not-coming': 'Ne vient pas' };
+
     let currentCouple = localStorage.getItem('couple') || '';
-    let currentYear, currentMonth, bookings = [], modalDate = null, selectedStatus = null;
-    function init() { const t = new Date(); currentYear = t.getFullYear(); currentMonth = t.getMonth(); renderCoupleSelector(); renderCalendar(); }
-    function renderCoupleSelector() { document.getElementById('coupleSelector').innerHTML = COUPLES.map(c => '<button class="couple-btn ' + (c === currentCouple ? 'active' : '') + '" onclick="selectCouple(\'' + c + '\')">' + c + '</button>').join(''); }
-    function selectCouple(n) { currentCouple = n; localStorage.setItem('couple', n); renderCoupleSelector(); }
-    function changeMonth(d) { currentMonth += d; if (currentMonth > 11) { currentMonth = 0; currentYear++; } if (currentMonth < 0) { currentMonth = 11; currentYear--; } renderCalendar(); }
-    function goToday() { const t = new Date(); currentYear = t.getFullYear(); currentMonth = t.getMonth(); renderCalendar(); }
+    let currentYear, currentMonth;
+    let bookings = [];
+    let modalDate = null;
+    let selectedStatus = null;
+
+    function init() {
+      const today = new Date();
+      currentYear = today.getFullYear();
+      currentMonth = today.getMonth();
+      renderCoupleSelector();
+      renderCalendar();
+    }
+
+    function renderCoupleSelector() {
+      const el = document.getElementById('coupleSelector');
+      el.innerHTML = COUPLES.map(c =>
+        `<button class="couple-btn ${c === currentCouple ? 'active' : ''}"
+                 onclick="selectCouple('${c}')">${c}</button>`
+      ).join('');
+    }
+
+    function selectCouple(name) {
+      currentCouple = name;
+      localStorage.setItem('couple', name);
+      renderCoupleSelector();
+    }
+
+    function changeMonth(delta) {
+      currentMonth += delta;
+      if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+      if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+      renderCalendar();
+    }
+
+    function goToday() {
+      const today = new Date();
+      currentYear = today.getFullYear();
+      currentMonth = today.getMonth();
+      renderCalendar();
+    }
+
     function pad(n) { return String(n).padStart(2, '0'); }
-    function fmt(y, m, d) { return y + '-' + pad(m+1) + '-' + pad(d); }
+
+    function formatDate(y, m, d) { return `${y}-${pad(m + 1)}-${pad(d)}`; }
+
     async function renderCalendar() {
-      document.getElementById('monthLabel').textContent = new Date(currentYear, currentMonth).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
-      const first = new Date(currentYear, currentMonth, 1), last = new Date(currentYear, currentMonth + 1, 0);
-      let dow = first.getDay(); if (dow === 0) dow = 7;
-      const from = fmt(currentYear, currentMonth, 1), to = fmt(currentYear, currentMonth, last.getDate());
-      try { bookings = await (await fetch('/api/bookings?from=' + from + '&to=' + to)).json(); } catch { bookings = []; }
-      const today = new Date(), todayStr = fmt(today.getFullYear(), today.getMonth(), today.getDate());
+      const label = new Date(currentYear, currentMonth).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+      document.getElementById('monthLabel').textContent = label;
+
+      const firstDay = new Date(currentYear, currentMonth, 1);
+      const lastDay = new Date(currentYear, currentMonth + 1, 0);
+      let startDow = firstDay.getDay();
+      if (startDow === 0) startDow = 7;
+
+      const from = formatDate(currentYear, currentMonth, 1);
+      const to = formatDate(currentYear, currentMonth, lastDay.getDate());
+
+      try {
+        const res = await fetch(`/api/bookings?from=${from}&to=${to}`);
+        bookings = await res.json();
+      } catch (e) {
+        bookings = [];
+      }
+
+      const today = new Date();
+      const todayStr = formatDate(today.getFullYear(), today.getMonth(), today.getDate());
+
+      const grid = document.getElementById('daysGrid');
       let html = '';
-      for (let i = 1; i < dow; i++) html += '<div class="day-cell empty"></div>';
-      for (let d = 1; d <= last.getDate(); d++) {
-        const ds = fmt(currentYear, currentMonth, d), db = bookings.filter(b => b.date === ds);
-        const isToday = ds === todayStr, isPast = new Date(ds) < new Date(todayStr);
-        html += '<div class="day-cell ' + (isToday ? 'today' : '') + ' ' + (isPast ? 'past' : '') + '" onclick="openModal(\'' + ds + '\')">';
-        html += '<div class="day-number">' + d + '</div>';
-        for (const b of db) { html += '<div class="booking-chip status-' + b.status + '" title="' + b.couple + ': ' + STATUS_LABELS[b.status] + (b.note ? '\n' + b.note : '') + '">' + b.couple + (b.note ? ' *' : '') + '</div>'; }
+
+      for (let i = 1; i < startDow; i++) {
+        html += '<div class="day-cell empty"></div>';
+      }
+
+      for (let d = 1; d <= lastDay.getDate(); d++) {
+        const dateStr = formatDate(currentYear, currentMonth, d);
+        const dayBookings = bookings.filter(b => b.date === dateStr);
+        const isToday = dateStr === todayStr;
+        const isPast = new Date(dateStr) < new Date(todayStr);
+
+        html += `<div class="day-cell ${isToday ? 'today' : ''} ${isPast ? 'past' : ''}"
+                      onclick="openModal('${dateStr}')">`;
+        html += `<div class="day-number">${d}</div>`;
+
+        for (const b of dayBookings) {
+          const cls = `status-${b.status}`;
+          const name = b.couple.split(' & ')[0];
+          const noteIcon = b.note ? ' *' : '';
+          html += `<div class="booking-chip ${cls}" title="${b.couple}: ${STATUS_LABELS[b.status]}${b.note ? '\n' + b.note : ''}">${name}${noteIcon}</div>`;
+        }
+
         html += '</div>';
       }
-      document.getElementById('daysGrid').innerHTML = html;
+
+      grid.innerHTML = html;
     }
-    function openModal(ds) {
-      if (!currentCouple) { showToast('Choisis ton nom en haut !'); return; }
-      modalDate = ds; selectedStatus = null;
-      const ex = bookings.find(b => b.date === ds && b.couple === currentCouple);
-      const d = new Date(ds + 'T12:00:00');
-      document.getElementById('modalTitle').innerHTML = '<span>' + currentCouple + '</span> \u2014 ' + d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+
+    function openModal(dateStr) {
+      if (!currentCouple) {
+        showToast('Choisis ton nom en haut de la page !');
+        return;
+      }
+
+      modalDate = dateStr;
+      selectedStatus = null;
+
+      const existing = bookings.find(b => b.date === dateStr && b.couple === currentCouple);
+
+      const d = new Date(dateStr + 'T12:00:00');
+      const label = d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+      document.getElementById('modalTitle').innerHTML =
+        `<span>${currentCouple.split(' & ')[0]}</span> — ${label}`;
+
       document.querySelectorAll('.status-option').forEach(el => el.classList.remove('selected'));
       document.getElementById('noteInput').value = '';
       document.getElementById('deleteBtn').style.display = 'none';
-      if (ex) { selectStatus(ex.status); document.getElementById('noteInput').value = ex.note || ''; document.getElementById('deleteBtn').style.display = 'inline-block'; }
+
+      if (existing) {
+        selectStatus(existing.status);
+        document.getElementById('noteInput').value = existing.note || '';
+        document.getElementById('deleteBtn').style.display = 'inline-block';
+      }
+
       document.getElementById('modalOverlay').classList.add('open');
     }
-    function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); modalDate = null; }
-    function selectStatus(s) { selectedStatus = s; document.querySelectorAll('.status-option').forEach(el => el.classList.toggle('selected', el.dataset.status === s)); }
+
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('open');
+      modalDate = null;
+    }
+
+    function selectStatus(status) {
+      selectedStatus = status;
+      document.querySelectorAll('.status-option').forEach(el => {
+        el.classList.toggle('selected', el.dataset.status === status);
+      });
+    }
+
     async function saveBooking() {
-      if (!selectedStatus) { showToast('Choisis un statut !'); return; }
-      await fetch('/api/bookings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ couple: currentCouple, date: modalDate, status: selectedStatus, note: document.getElementById('noteInput').value.trim() }) });
-      closeModal(); renderCalendar();
+      if (!selectedStatus) {
+        showToast('Choisis un statut !');
+        return;
+      }
+
+      const note = document.getElementById('noteInput').value.trim();
+      await fetch('/api/bookings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ couple: currentCouple, date: modalDate, status: selectedStatus, note })
+      });
+
+      closeModal();
+      renderCalendar();
     }
+
     async function deleteBooking() {
-      await fetch('/api/bookings', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ couple: currentCouple, date: modalDate }) });
-      closeModal(); renderCalendar();
+      await fetch('/api/bookings', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ couple: currentCouple, date: modalDate })
+      });
+
+      closeModal();
+      renderCalendar();
     }
-    document.getElementById('modalOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
-    function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2500); }
+
+    document.getElementById('modalOverlay').addEventListener('click', e => {
+      if (e.target === e.currentTarget) closeModal();
+    });
+
+    function showToast(msg) {
+      const t = document.createElement('div');
+      t.className = 'toast';
+      t.textContent = msg;
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 2500);
+    }
+
     init();
   </script>
 </body>
